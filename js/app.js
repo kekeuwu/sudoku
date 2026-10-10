@@ -43,8 +43,6 @@
       mistakeLimit: true,
       largeText: false,
       sound: true,
-      clickSound: 'tap',
-      correctSound: 'ding',
     },
     load(KEYS.settings) || {}
   );
@@ -96,9 +94,11 @@
 
   // ---------- Sound ----------
   const SoundFx = window.Sound;
-  const playClick = () => settings.sound && SoundFx && SoundFx.click(settings.clickSound);
-  const playCorrect = () => settings.sound && SoundFx && SoundFx.correct(settings.correctSound);
-  const playWin = () => settings.sound && SoundFx && SoundFx.win();
+  const play = (name) => settings.sound && SoundFx && SoundFx[name]();
+  const playPop = () => play('pop'); // selecting cells, general buttons
+  const playWood = () => play('wood'); // tool row and number pad
+  const playCorrect = () => play('sparkle'); // a correct number
+  const playWin = () => play('win');
 
   // ---------- Settings & i18n ----------
   function applySettings() {
@@ -186,7 +186,7 @@
       const b = document.createElement('button');
       b.className = 'num';
       b.textContent = d;
-      b.addEventListener('click', () => inputDigit(d));
+      b.addEventListener('click', () => pressDigit(d));
       pad.appendChild(b);
       numButtons.push(b);
     }
@@ -258,6 +258,7 @@
   // ---------- Actions ----------
   function select(i) {
     if (!isPlaying() || paused) return;
+    if (i !== selected) playPop();
     selected = i;
     renderBoard();
   }
@@ -287,33 +288,42 @@
     pushHistory(entry);
   }
 
+  // Number pad / keyboard digit: sparkle when correct, wood otherwise.
+  function pressDigit(d) {
+    if (!inputDigit(d)) playWood();
+  }
+
+  // Returns true when a correct number was placed.
   function inputDigit(d) {
-    if (!isPlaying() || paused || selected < 0) return;
+    if (!isPlaying() || paused || selected < 0) return false;
     const i = selected;
-    if (isLocked(i)) return;
+    if (isLocked(i)) return false;
 
     if (noteMode) {
-      if (game.values[i]) return;
-      playClick();
+      if (game.values[i]) return false;
       pushHistory({ i, v: 0, n: game.notes[i], p: [] });
       game.notes[i] ^= S.bit(d);
     } else {
-      if (game.values[i] === d) return;
+      if (game.values[i] === d) return false;
       placeValue(i, d);
       if (d !== game.solution[i]) {
-        playClick();
         game.mistakes++;
         if (settings.mistakeLimit && game.mistakes >= MAX_MISTAKES) {
           lose();
-          return;
+          return false;
         }
       } else {
         playCorrect();
-        if (checkWin()) return;
+        if (!checkWin()) {
+          saveGame();
+          renderGame();
+        }
+        return true;
       }
     }
     saveGame();
     renderGame();
+    return false;
   }
 
   function erase() {
@@ -544,9 +554,9 @@
 
   const modalOpen = () => !$('modal').hidden;
 
-  function segmented(options, current, onPick, extraClass) {
+  function segmented(options, current, onPick) {
     const wrap = document.createElement('div');
-    wrap.className = 'segmented' + (extraClass ? ' ' + extraClass : '');
+    wrap.className = 'segmented';
     options.forEach(([value, label]) => {
       const b = document.createElement('button');
       b.textContent = label;
@@ -606,37 +616,6 @@
     body.appendChild(
       settingRow(t('sound'), segmented([[true, t('on')], [false, t('off')]], !!settings.sound, (v) => update('sound', v)))
     );
-    if (settings.sound && SoundFx) {
-      // These buttons preview their own sound instead of the generic click.
-      body.appendChild(
-        settingRow(
-          t('clickSound'),
-          segmented(
-            SoundFx.CLICKS.map((k) => [k, t('s_' + k)]),
-            settings.clickSound,
-            (v) => {
-              update('clickSound', v);
-              SoundFx.click(v);
-            },
-            'silent'
-          )
-        )
-      );
-      body.appendChild(
-        settingRow(
-          t('correctSound'),
-          segmented(
-            SoundFx.CORRECT.map((k) => [k, t('s_' + k)]),
-            settings.correctSound,
-            (v) => {
-              update('correctSound', v);
-              SoundFx.correct(v);
-            },
-            'silent'
-          )
-        )
-      );
-    }
     openModal({ title: t('settings'), body, actions: [{ label: t('close'), primary: true }] });
   }
 
@@ -673,13 +652,14 @@
     $('btn-notes').addEventListener('click', toggleNotes);
     $('btn-hint').addEventListener('click', hint);
 
-    // Generic tap sound for every button; number keys and sound previews play their own.
+    // Tap sounds: wood for the tool row, pop for every other button (number pad plays its own).
     document.addEventListener(
       'click',
       (e) => {
         const b = e.target.closest('button');
-        if (!b || b.disabled || b.classList.contains('num') || b.closest('.silent')) return;
-        playClick();
+        if (!b || b.disabled || b.classList.contains('num')) return;
+        if (b.closest('.tools')) playWood();
+        else playPop();
       },
       true
     );
@@ -701,7 +681,7 @@
       }
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const k = e.key;
-      if (k >= '1' && k <= '9') inputDigit(Number(k));
+      if (k >= '1' && k <= '9') pressDigit(Number(k));
       else if (k === 'Backspace' || k === 'Delete' || k === '0') erase();
       else if (k === 'ArrowUp') moveSelection(-1, 0);
       else if (k === 'ArrowDown') moveSelection(1, 0);
