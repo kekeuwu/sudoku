@@ -38,7 +38,7 @@
   const DIFFICULTY = {
     easy: { clues: 40, min: 1, max: 1 },
     medium: { clues: 33, min: 2, max: 2 },
-    hard: { clues: 28, min: 2, max: 3 },
+    hard: { clues: 30, min: 2, max: 2 },
     expert: { clues: 24, min: 3, max: 3 },
   };
   const MAX_ATTEMPTS = 60;

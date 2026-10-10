@@ -1,5 +1,5 @@
 /* Offline support: cache the app shell, serve it stale-while-revalidate. */
-const CACHE = 'sudoku-v4';
+const CACHE = 'sudoku-v5';
 const ASSETS = [
   './',
   './index.html',
