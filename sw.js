@@ -1,11 +1,12 @@
 /* Offline support: cache the app shell, serve it stale-while-revalidate. */
-const CACHE = 'sudoku-v1';
+const CACHE = 'sudoku-v2';
 const ASSETS = [
   './',
   './index.html',
   './css/style.css',
   './js/i18n.js',
   './js/sudoku.js',
+  './js/sound.js',
   './js/app.js',
   './manifest.webmanifest',
   './icons/icon-192.png',

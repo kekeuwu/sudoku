@@ -1,7 +1,7 @@
 {
   "name": "數獨 Sudoku",
   "short_name": "數獨",
-  "description": "安靜、乾淨、沒有廣告的數獨。Calm, clean, ad-free Sudoku.",
+  "description": "安靜、乾淨、無廣告的數獨。Calm, clean, ad-free Sudoku.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

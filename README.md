@@ -1,6 +1,6 @@
 # 數獨 Sudoku
 
-安靜、乾淨、**沒有廣告**的數獨小網站。可以直接在瀏覽器玩，也可以「加到主畫面」當成 App 使用，離線也能玩。
+安靜、乾淨、**無廣告**的數獨小網站。可以直接在瀏覽器玩，也可以「加到主畫面」當成 App 使用，離線也能玩。
 
 A calm, clean, ad-free Sudoku web app. Play in the browser or install it as a PWA — works offline.
 

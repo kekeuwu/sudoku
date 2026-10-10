@@ -37,7 +37,15 @@
   }
 
   const settings = Object.assign(
-    { lang: defaultLang(), theme: 'auto', mistakeLimit: true, largeText: false },
+    {
+      lang: defaultLang(),
+      theme: 'auto',
+      mistakeLimit: true,
+      largeText: false,
+      sound: true,
+      clickSound: 'tap',
+      correctSound: 'ding',
+    },
     load(KEYS.settings) || {}
   );
   const stats = Object.assign(
@@ -85,6 +93,12 @@
   }
 
   const isPlaying = () => game && game.status === 'playing';
+
+  // ---------- Sound ----------
+  const SoundFx = window.Sound;
+  const playClick = () => settings.sound && SoundFx && SoundFx.click(settings.clickSound);
+  const playCorrect = () => settings.sound && SoundFx && SoundFx.correct(settings.correctSound);
+  const playWin = () => settings.sound && SoundFx && SoundFx.win();
 
   // ---------- Settings & i18n ----------
   function applySettings() {
@@ -280,19 +294,22 @@
 
     if (noteMode) {
       if (game.values[i]) return;
+      playClick();
       pushHistory({ i, v: 0, n: game.notes[i], p: [] });
       game.notes[i] ^= S.bit(d);
     } else {
       if (game.values[i] === d) return;
       placeValue(i, d);
       if (d !== game.solution[i]) {
+        playClick();
         game.mistakes++;
         if (settings.mistakeLimit && game.mistakes >= MAX_MISTAKES) {
           lose();
           return;
         }
-      } else if (checkWin()) {
-        return;
+      } else {
+        playCorrect();
+        if (checkWin()) return;
       }
     }
     saveGame();
@@ -338,6 +355,7 @@
     el.classList.remove('flash');
     void el.offsetWidth;
     el.classList.add('flash');
+    playCorrect();
     if (checkWin()) return;
     saveGame();
     renderBoard();
@@ -380,6 +398,7 @@
     saveStats();
     saveGame();
     renderGame();
+    setTimeout(playWin, 300);
 
     setTimeout(() => {
       openModal({
@@ -525,9 +544,9 @@
 
   const modalOpen = () => !$('modal').hidden;
 
-  function segmented(options, current, onPick) {
+  function segmented(options, current, onPick, extraClass) {
     const wrap = document.createElement('div');
-    wrap.className = 'segmented';
+    wrap.className = 'segmented' + (extraClass ? ' ' + extraClass : '');
     options.forEach(([value, label]) => {
       const b = document.createElement('button');
       b.textContent = label;
@@ -584,6 +603,40 @@
         segmented([[true, t('on')], [false, t('off')]], !!settings.mistakeLimit, (v) => update('mistakeLimit', v))
       )
     );
+    body.appendChild(
+      settingRow(t('sound'), segmented([[true, t('on')], [false, t('off')]], !!settings.sound, (v) => update('sound', v)))
+    );
+    if (settings.sound && SoundFx) {
+      // These buttons preview their own sound instead of the generic click.
+      body.appendChild(
+        settingRow(
+          t('clickSound'),
+          segmented(
+            SoundFx.CLICKS.map((k) => [k, t('s_' + k)]),
+            settings.clickSound,
+            (v) => {
+              update('clickSound', v);
+              SoundFx.click(v);
+            },
+            'silent'
+          )
+        )
+      );
+      body.appendChild(
+        settingRow(
+          t('correctSound'),
+          segmented(
+            SoundFx.CORRECT.map((k) => [k, t('s_' + k)]),
+            settings.correctSound,
+            (v) => {
+              update('correctSound', v);
+              SoundFx.correct(v);
+            },
+            'silent'
+          )
+        )
+      );
+    }
     openModal({ title: t('settings'), body, actions: [{ label: t('close'), primary: true }] });
   }
 
@@ -619,6 +672,17 @@
     $('btn-erase').addEventListener('click', erase);
     $('btn-notes').addEventListener('click', toggleNotes);
     $('btn-hint').addEventListener('click', hint);
+
+    // Generic tap sound for every button; number keys and sound previews play their own.
+    document.addEventListener(
+      'click',
+      (e) => {
+        const b = e.target.closest('button');
+        if (!b || b.disabled || b.classList.contains('num') || b.closest('.silent')) return;
+        playClick();
+      },
+      true
+    );
 
     $('modal').addEventListener('click', (e) => {
       if (e.target === $('modal') && !modalLocked) closeModal();
