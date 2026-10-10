@@ -4,7 +4,7 @@
 
 A calm, clean, ad-free Sudoku web app. Play in the browser or install it as a PWA — works offline.
 
-👉 **線上遊玩 Play:** `https://<你的 GitHub 帳號>.github.io/sudoku/`
+👉 **線上遊玩 Play:** https://kekeuwu.github.io/sudoku/
 
 ---
 
@@ -36,11 +36,11 @@ A calm, clean, ad-free Sudoku web app. Play in the browser or install it as a PW
 1. 在 GitHub 建立名為 `sudoku` 的 repository
 2. 把這個資料夾推上去：
    ```bash
-   git remote add origin https://github.com/<你的帳號>/sudoku.git
+   git remote add origin https://github.com/kekeuwu/sudoku.git
    git push -u origin main
    ```
 3. 到 repo 的 **Settings → Pages**，Source 選 **Deploy from a branch**，Branch 選 `main`、資料夾選 `/ (root)`，按 Save
-4. 等一兩分鐘，網站就會出現在 `https://<你的帳號>.github.io/sudoku/`
+4. 等一兩分鐘，網站就會出現在 https://kekeuwu.github.io/sudoku/
 
 > 更新程式後，記得把 `sw.js` 裡的 `CACHE = 'sudoku-v1'` 版本號加 1（例如 `v2`），已安裝的使用者才會拿到新版本。
 
