@@ -200,6 +200,8 @@ svg .fill {
 .brand-mark {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  line-height: 1;
   width: 108px;
   height: 108px;
   margin: 0 auto 18px;
