@@ -185,7 +185,7 @@
     for (let d = 1; d <= 9; d++) {
       const b = document.createElement('button');
       b.className = 'num';
-      b.textContent = d;
+      b.innerHTML = '<span class="num-digit">' + d + '</span><span class="num-left"></span>';
       b.addEventListener('click', () => pressDigit(d));
       pad.appendChild(b);
       numButtons.push(b);
@@ -247,7 +247,11 @@
     // Hide digits that are fully (and correctly) placed.
     const placed = new Array(10).fill(0);
     for (let i = 0; i < 81; i++) if (g.values[i] && g.values[i] === g.solution[i]) placed[g.values[i]]++;
-    numButtons.forEach((b, k) => b.classList.toggle('done', placed[k + 1] >= 9));
+    numButtons.forEach((b, k) => {
+      const left = 9 - placed[k + 1];
+      b.classList.toggle('done', left <= 0);
+      b.lastChild.textContent = left;
+    });
 
     $('numpad').classList.toggle('notes-mode', noteMode);
     $('btn-notes').classList.toggle('active', noteMode);

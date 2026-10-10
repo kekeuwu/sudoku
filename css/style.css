@@ -571,14 +571,17 @@ svg .fill {
 }
 
 .num {
-  height: 68px;
+  height: 72px;
   border-radius: 12px;
   background: var(--surface);
   font-size: clamp(26px, 7.5vw, 36px);
   font-weight: 500;
   color: var(--ink);
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
 }
 
 .num:active {
@@ -590,8 +593,24 @@ svg .fill {
   visibility: hidden;
 }
 
-.notes-mode .num {
+/* Remaining count under each digit. */
+.num-left {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-3);
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.num:active .num-left {
+  color: inherit;
+}
+
+.notes-mode .num-digit {
   font-size: clamp(18px, 5vw, 24px);
+}
+
+.notes-mode .num {
   color: var(--ink-2);
   border: 2px dashed var(--line);
 }
@@ -621,8 +640,12 @@ svg .fill {
   }
 
   .num {
-    height: 84px;
+    height: 88px;
     font-size: 36px;
+  }
+
+  .num-left {
+    font-size: 15px;
   }
 
   .tools {
