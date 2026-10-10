@@ -34,11 +34,12 @@
   }
 
   // Hardness scale: 1 = naked singles suffice, 2 = needs hidden singles,
-  // 3 = needs techniques beyond singles. Each level targets a clue count and a hardness range.
+  // 3 = needs techniques beyond singles. Each level targets a clue count and a hardness range;
+  // `advanced` is the share of puzzles that should need techniques beyond singles.
   const DIFFICULTY = {
     easy: { clues: 40, min: 1, max: 1 },
     medium: { clues: 33, min: 2, max: 2 },
-    hard: { clues: 30, min: 2, max: 2 },
+    hard: { clues: 28, min: 2, max: 3, advanced: 0.2 },
     expert: { clues: 24, min: 3, max: 3 },
   };
   const MAX_ATTEMPTS = 60;
@@ -201,12 +202,17 @@
     const cfg = DIFFICULTY[difficulty] || DIFFICULTY.medium;
     if (seed === undefined || seed === null) seed = Math.floor(Math.random() * 4294967296);
     const rand = mulberry32(seed); // same seed -> same puzzle (daily challenge)
+    let min = cfg.min;
+    let max = cfg.max;
+    if (cfg.advanced !== undefined) {
+      min = max = rand() < cfg.advanced ? 3 : 2;
+    }
     let best = null;
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       const p = carve(cfg, rand);
       const h = hardness(p.puzzle);
-      if (h >= cfg.min && h <= cfg.max) return Object.assign(p, { difficulty, seed });
-      if (!best || Math.abs(h - cfg.min) < Math.abs(best.h - cfg.min)) best = Object.assign(p, { h });
+      if (h >= min && h <= max) return Object.assign(p, { difficulty, seed });
+      if (!best || Math.abs(h - min) < Math.abs(best.h - min)) best = Object.assign(p, { h });
     }
     delete best.h;
     return Object.assign(best, { difficulty, seed });
