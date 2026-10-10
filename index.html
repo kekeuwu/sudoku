@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>數獨 Sudoku</title>
+  <meta name="description" content="安靜、乾淨、沒有廣告的數獨。Calm, clean, ad-free Sudoku.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="數獨">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Home -->
+  <section id="home" class="view">
+    <header class="topbar">
+      <span></span>
+      <button id="btn-settings-home" class="icon-btn" data-i18n-label="settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+      </button>
+    </header>
+
+    <main class="home-main">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span>5</span><span></span><span>3</span>
+          <span></span><span>9</span><span></span>
+          <span>7</span><span></span><span>1</span>
+        </div>
+        <h1 data-i18n="appName">數獨</h1>
+        <p class="tagline" data-i18n="tagline">安靜、乾淨、沒有廣告的數獨</p>
+      </div>
+
+      <div class="home-actions">
+        <button id="btn-continue" class="btn btn-primary" hidden>
+          <span data-i18n="continue">繼續遊戲</span>
+          <small id="continue-info"></small>
+        </button>
+        <button id="btn-new" class="btn">
+          <span data-i18n="newGame">新遊戲</span>
+        </button>
+        <button id="btn-daily" class="btn">
+          <span data-i18n="daily">每日挑戰</span>
+          <small id="daily-info"></small>
+        </button>
+      </div>
+
+      <div class="stats">
+        <div class="stats-total">
+          <span data-i18n="completed">已完成</span>
+          <strong id="stat-total">0</strong>
+          <span data-i18n="gamesUnit">局</span>
+        </div>
+        <div id="stat-breakdown" class="stats-breakdown"></div>
+      </div>
+    </main>
+  </section>
+
+  <!-- Game -->
+  <section id="game" class="view" hidden>
+    <header class="topbar">
+      <button id="btn-back" class="icon-btn" data-i18n-label="back">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div id="game-title" class="game-title"></div>
+      <button id="btn-settings-game" class="icon-btn" data-i18n-label="settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+      </button>
+    </header>
+
+    <main class="game-main">
+      <div class="board-col">
+        <div class="status-bar">
+          <span id="mistakes" class="status-item"></span>
+          <span class="status-item timer-wrap">
+            <span id="timer">00:00</span>
+            <button id="btn-pause" class="icon-btn small" data-i18n-label="pause">
+              <svg id="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+              <svg id="icon-play" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M7 4.5v15l12-7.5z" class="fill"/></svg>
+            </button>
+          </span>
+        </div>
+        <div class="board-wrap">
+          <div id="board" class="board" role="grid" aria-label="Sudoku"></div>
+          <div id="pause-overlay" class="pause-overlay" hidden>
+            <p data-i18n="paused">已暫停</p>
+            <button id="btn-resume" class="btn btn-primary" data-i18n="resume">繼續</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-col">
+        <div class="tools">
+          <button id="btn-undo" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+            <span data-i18n="undo">復原</span>
+          </button>
+          <button id="btn-erase" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20H9L4.6 15.6a2 2 0 0 1 0-2.8l9-9a2 2 0 0 1 2.8 0l4 4a2 2 0 0 1 0 2.8L12 19"/><path d="M8 11l6 6"/></svg>
+            <span data-i18n="erase">清除</span>
+          </button>
+          <button id="btn-notes" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="M13.5 6.5l4 4"/></svg>
+            <span data-i18n="notes">筆記</span>
+            <em id="notes-badge" class="badge">關</em>
+          </button>
+          <button id="btn-hint" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z"/></svg>
+            <span data-i18n="hint">提示</span>
+          </button>
+        </div>
+        <div id="numpad" class="numpad"></div>
+      </div>
+    </main>
+  </section>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title"></h2>
+      <div id="modal-body" class="modal-body"></div>
+      <div id="modal-actions" class="modal-actions"></div>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/sudoku.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
