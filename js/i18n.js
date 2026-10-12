@@ -54,6 +54,11 @@
       start: '開始',
       dailyTitle: '每日挑戰 {date}',
       sound: '音效',
+      score: '分數',
+      totalScore: '累計分數',
+      winScore: '本局得分',
+      bonusNote: '含完成獎勵 +{bonus}',
+      newRecord: '新紀錄！',
     },
     en: {
       appName: 'Sudoku',
@@ -106,6 +111,11 @@
       start: 'Start',
       dailyTitle: 'Daily {date}',
       sound: 'Sound',
+      score: 'Score',
+      totalScore: 'Total score',
+      winScore: 'Score',
+      bonusNote: 'Includes completion bonus +{bonus}',
+      newRecord: 'New best!',
     },
   };
 

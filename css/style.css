@@ -12,6 +12,7 @@
   --same: #d4d4d4;
   --sel-bg: #111111;
   --sel-ink: #ffffff;
+  --user: #5e71b5;
   --err: #d32f2f;
   --err-sel: #ff8a80;
   --err-bg: #fdecec;
@@ -35,6 +36,7 @@
     --same: #4a4a4a;
     --sel-bg: #f2f2f2;
     --sel-ink: #000000;
+    --user: #93a3e8;
     --err: #ff6b6b;
     --err-sel: #c62828;
     --err-bg: #3a1414;
@@ -56,6 +58,7 @@
   --same: #4a4a4a;
   --sel-bg: #f2f2f2;
   --sel-ink: #000000;
+  --user: #93a3e8;
   --err: #ff6b6b;
   --err-sel: #c62828;
   --err-bg: #3a1414;
@@ -305,6 +308,22 @@ svg .fill {
   line-height: 1;
 }
 
+.stats-score {
+  margin-top: 14px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--ink-2);
+}
+
+.stats-score strong {
+  font-size: 24px;
+  color: var(--user);
+  font-variant-numeric: tabular-nums;
+}
+
 .stats-breakdown {
   margin-top: 8px;
   color: var(--ink-2);
@@ -337,12 +356,14 @@ svg .fill {
 }
 
 .status-bar {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   height: 40px;
-  font-size: 17px;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
 }
 
 .status-item {
@@ -351,15 +372,37 @@ svg .fill {
   gap: 2px;
 }
 
-#timer {
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  color: var(--ink);
+.timer-wrap {
+  justify-self: end;
+}
+
+.gain {
+  position: absolute;
+  transform: translate(-50%, -40%);
+  pointer-events: none;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--user);
+  background: var(--bg);
+  border-radius: 999px;
+  padding: 0 6px;
+  animation: gain-up 0.9s ease-out forwards;
+}
+
+@keyframes gain-up {
+  to {
+    transform: translate(-50%, -140%);
+    opacity: 0;
+  }
+}
+
+
+#mistakes {
+  justify-self: center;
 }
 
 #mistakes.has-mistakes {
   color: var(--err);
-  font-weight: 500;
 }
 
 /* ---------- Board ---------- */
@@ -392,8 +435,8 @@ svg .fill {
   font-size: 7cqi;
   line-height: 1;
   cursor: pointer;
-  color: var(--ink-2);
-  font-weight: 400;
+  color: var(--user);
+  font-weight: 600;
 }
 
 .cell:nth-child(9n) {
@@ -709,6 +752,35 @@ svg .fill {
 
 .modal-actions .btn {
   min-height: 58px;
+}
+
+.win-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.win-score strong {
+  font-size: 30px;
+  color: var(--user);
+  font-variant-numeric: tabular-nums;
+}
+
+.win-note {
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.record {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 700;
 }
 
 .big-result {

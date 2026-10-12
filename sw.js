@@ -1,5 +1,5 @@
 /* Offline support: cache the app shell, serve it stale-while-revalidate. */
-const CACHE = 'sudoku-v7';
+const CACHE = 'sudoku-v8';
 const ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,13 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches
+      .open(CACHE)
+      // Bypass the HTTP cache so a new release never mixes in stale files.
+      .then((cache) => cache.addAll(ASSETS.map((url) => new Request(url, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (event) => {

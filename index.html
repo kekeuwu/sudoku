@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -60,6 +60,10 @@
           <span data-i18n="gamesUnit">局</span>
         </div>
         <div id="stat-breakdown" class="stats-breakdown"></div>
+        <div class="stats-score">
+          <span data-i18n="totalScore">累計分數</span>
+          <strong id="stat-score">0</strong>
+        </div>
       </div>
     </main>
   </section>
@@ -79,6 +83,7 @@
     <main class="game-main">
       <div class="board-col">
         <div class="status-bar">
+          <span id="score" class="status-item"></span>
           <span id="mistakes" class="status-item"></span>
           <span class="status-item timer-wrap">
             <span id="timer">00:00</span>

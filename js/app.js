@@ -47,16 +47,56 @@
     load(KEYS.settings) || {}
   );
   const stats = Object.assign(
-    { easy: 0, medium: 0, hard: 0, expert: 0, daily: 0, dailyDates: [] },
+    { easy: 0, medium: 0, hard: 0, expert: 0, daily: 0, dailyDates: [], totalScore: 0, best: {} },
     load(KEYS.stats) || {}
   );
+  if (!stats.best || typeof stats.best !== 'object') stats.best = {};
   let game = validGame(load(KEYS.game));
 
   function validGame(g) {
     if (!g || !Array.isArray(g.puzzle) || g.puzzle.length !== 81) return null;
     if (!Array.isArray(g.solution) || !Array.isArray(g.values) || !Array.isArray(g.notes)) return null;
     g.history = Array.isArray(g.history) ? g.history : [];
+    // Games saved before scoring existed: start at 0, and treat cells already
+    // answered as scored so undo + re-entry cannot earn points for them.
+    g.score = Number(g.score) || 0;
+    if (!Array.isArray(g.scored) || g.scored.length !== 81) {
+      g.scored = g.values.map((v, i) => (!g.puzzle[i] && v && v === g.solution[i] ? 1 : 0));
+    }
     return g;
+  }
+
+  // ---------- Scoring ----------
+  const CELL_POINTS = { easy: 10, medium: 20, hard: 30, expert: 50 };
+  const WIN_BONUS = { easy: 100, medium: 200, hard: 300, expert: 500 };
+  const DAILY_BONUS_MULTIPLIER = 2;
+
+  const formatScore = (n) => Number(n || 0).toLocaleString('en-US');
+
+  // Each cell earns points once, on its first correct entry by the player.
+  function awardCell(i) {
+    if (game.scored[i]) return;
+    game.scored[i] = 1;
+    const pts = CELL_POINTS[game.difficulty] || 0;
+    game.score += pts;
+    showGain(i, pts);
+  }
+
+  function winBonus() {
+    const b = WIN_BONUS[game.difficulty] || 0;
+    return game.daily ? b * DAILY_BONUS_MULTIPLIER : b;
+  }
+
+  function showGain(i, pts) {
+    const tag = document.createElement('div');
+    tag.className = 'gain';
+    tag.textContent = '+' + pts;
+    tag.style.left = ((S.COL[i] + 0.5) / 9) * 100 + '%';
+    tag.style.top = (S.ROW[i] / 9) * 100 + '%';
+    const wrap = document.querySelector('.board-wrap');
+    if (!wrap) return;
+    wrap.appendChild(tag);
+    setTimeout(() => tag.remove(), 900);
   }
 
   const saveGame = () => store(KEYS.game, game);
@@ -70,6 +110,11 @@
   let paused = false;
 
   const $ = (id) => document.getElementById(id);
+  // Tolerates a page from an older release that lacks the element.
+  const setText = (id, text) => {
+    const el = $(id);
+    if (el) el.textContent = text;
+  };
   const t = (key, vars) => I.t(settings.lang, key, vars);
 
   function todayStr() {
@@ -150,6 +195,7 @@
 
     const total = stats.easy + stats.medium + stats.hard + stats.expert + stats.daily;
     $('stat-total').textContent = total;
+    setText('stat-score', formatScore(stats.totalScore));
     const parts = S.DIFFICULTIES.map((d) => t(d) + ' ' + stats[d]);
     parts.push(t('dailyLabel') + ' ' + stats.daily);
     $('stat-breakdown').innerHTML = parts.map((p) => '<span>' + p + '</span>').join('');
@@ -204,6 +250,7 @@
     m.textContent = t('mistakes') + ' ' + game.mistakes + (settings.mistakeLimit ? '/' + MAX_MISTAKES : '');
     m.classList.toggle('has-mistakes', game.mistakes > 0);
     $('timer').textContent = formatTime(game.elapsed);
+    setText('score', t('score') + ' ' + formatScore(game.score));
     $('pause-overlay').hidden = !paused;
     $('board').style.visibility = paused ? 'hidden' : '';
     $('icon-pause').hidden = paused;
@@ -318,6 +365,7 @@
         }
       } else {
         playCorrect();
+        awardCell(i);
         if (!checkWin()) {
           saveGame();
           renderGame();
@@ -363,6 +411,7 @@
       i = open[Math.floor(Math.random() * open.length)];
     }
     placeValue(i, game.solution[i]);
+    game.scored[i] = 1; // hinted cells earn no points
     game.hints = (game.hints || 0) + 1;
     selected = i;
     const el = cells[i].el;
@@ -402,6 +451,12 @@
     for (let i = 0; i < 81; i++) if (game.values[i] !== game.solution[i]) return false;
     game.status = 'won';
     selected = -1;
+    const bonus = winBonus();
+    game.score += bonus;
+    stats.totalScore = (Number(stats.totalScore) || 0) + game.score;
+    const bestKey = game.daily ? 'daily' : game.difficulty;
+    const newRecord = game.score > (stats.best[bestKey] || 0);
+    if (newRecord) stats.best[bestKey] = game.score;
     if (game.daily) {
       stats.daily++;
       if (stats.dailyDates.indexOf(game.daily) === -1) stats.dailyDates.push(game.daily);
@@ -422,7 +477,14 @@
           t('winBody', { difficulty: gameLabel(game) }) +
           '</div><p class="big-result">' +
           formatTime(game.elapsed) +
-          '</p>',
+          '</p><div class="win-score"><span>' +
+          t('winScore') +
+          '</span><strong>' +
+          formatScore(game.score) +
+          '</strong></div><div class="win-note">' +
+          t('bonusNote', { bonus: formatScore(bonus) }) +
+          (newRecord ? '<span class="record">' + t('newRecord') + '</span>' : '') +
+          '</div>',
         actions: [
           { label: t('playAgain'), primary: true, onClick: chooseDifficulty },
           { label: t('home'), onClick: () => showView('home') },
@@ -471,6 +533,8 @@
         daily: dailyDate || null,
         mistakes: 0,
         hints: 0,
+        score: 0,
+        scored: new Array(81).fill(0),
         elapsed: 0,
         history: [],
         status: 'playing',
