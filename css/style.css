@@ -372,8 +372,23 @@ svg .fill {
   gap: 2px;
 }
 
+/* Score, mistakes and timer share one size, weight and color. */
+.status-bar #score,
+.status-bar #mistakes,
+.status-bar #timer {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
 .timer-wrap {
   justify-self: end;
+}
+
+/* Narrow pause button with the icon flush right, so the timer sits further right. */
+.timer-wrap .icon-btn.small {
+  width: 26px;
+  place-items: center end;
 }
 
 .gain {
@@ -401,7 +416,7 @@ svg .fill {
   justify-self: center;
 }
 
-#mistakes.has-mistakes {
+.status-bar #mistakes.has-mistakes {
   color: var(--err);
 }
 
