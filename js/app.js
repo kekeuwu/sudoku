@@ -195,6 +195,7 @@
 
     const total = stats.easy + stats.medium + stats.hard + stats.expert + stats.daily;
     $('stat-total').textContent = total;
+    setText('stat-score', formatScore(stats.totalScore));
     const parts = S.DIFFICULTIES.map((d) => t(d) + ' ' + stats[d]);
     parts.push(t('dailyLabel') + ' ' + stats.daily);
     $('stat-breakdown').innerHTML = parts.map((p) => '<span>' + p + '</span>').join('');
