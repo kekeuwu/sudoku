@@ -308,6 +308,10 @@ svg .fill {
   line-height: 1;
 }
 
+.stats-breakdown.stats-score {
+  margin-top: 16px;
+}
+
 .stats-breakdown {
   margin-top: 8px;
   color: var(--ink-2);
