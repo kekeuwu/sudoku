@@ -9,7 +9,9 @@
     settings: 'sudoku.settings.v1',
     stats: 'sudoku.stats.v1',
   };
-  const MAX_MISTAKES = 3;
+  const MISTAKES_DEFAULT = 3;
+  const MISTAKES_MIN = 1;
+  const MISTAKES_MAX = 10;
   const DAILY_DIFFICULTY = 'medium';
   const HISTORY_LIMIT = 300;
 
@@ -41,6 +43,7 @@
       lang: defaultLang(),
       theme: 'auto',
       mistakeLimit: true,
+      mistakeMax: MISTAKES_DEFAULT,
       largeText: false,
       sound: true,
     },
@@ -52,6 +55,12 @@
   );
   if (!stats.best || typeof stats.best !== 'object') stats.best = {};
   let game = validGame(load(KEYS.game));
+
+  // Allowed mistakes when the limit is on (saved settings from older releases default to 3).
+  function mistakeMax() {
+    const n = Math.round(Number(settings.mistakeMax));
+    return n >= MISTAKES_MIN && n <= MISTAKES_MAX ? n : MISTAKES_DEFAULT;
+  }
 
   function validGame(g) {
     if (!g || !Array.isArray(g.puzzle) || g.puzzle.length !== 81) return null;
@@ -247,7 +256,7 @@
 
   function renderStatus() {
     const m = $('mistakes');
-    m.textContent = t('mistakes') + ' ' + game.mistakes + (settings.mistakeLimit ? '/' + MAX_MISTAKES : '');
+    m.textContent = t('mistakes') + ' ' + game.mistakes + (settings.mistakeLimit ? '/' + mistakeMax() : '');
     m.classList.toggle('has-mistakes', game.mistakes > 0);
     $('timer').textContent = formatTime(game.elapsed);
     setText('score', t('score') + ' ' + formatScore(game.score));
@@ -359,7 +368,7 @@
       placeValue(i, d);
       if (d !== game.solution[i]) {
         game.mistakes++;
-        if (settings.mistakeLimit && game.mistakes >= MAX_MISTAKES) {
+        if (settings.mistakeLimit && game.mistakes >= mistakeMax()) {
           lose();
           return false;
         }
@@ -499,7 +508,7 @@
     saveGame();
     renderGame();
     openModal({
-      title: t('loseTitle'),
+      title: t('loseTitle', { n: game.mistakes }),
       body: t('loseBody'),
       actions: [
         {
@@ -635,6 +644,26 @@
     return wrap;
   }
 
+  function stepper(value, min, max, onChange) {
+    const wrap = document.createElement('div');
+    wrap.className = 'stepper';
+    const minus = document.createElement('button');
+    minus.textContent = '−';
+    minus.setAttribute('aria-label', '-1');
+    minus.disabled = value <= min;
+    minus.addEventListener('click', () => onChange(Math.max(min, value - 1)));
+    const label = document.createElement('span');
+    label.className = 'stepper-value';
+    label.textContent = t('timesUnit', { n: value });
+    const plus = document.createElement('button');
+    plus.textContent = '+';
+    plus.setAttribute('aria-label', '+1');
+    plus.disabled = value >= max;
+    plus.addEventListener('click', () => onChange(Math.min(max, value + 1)));
+    wrap.append(minus, label, plus);
+    return wrap;
+  }
+
   function settingRow(label, control) {
     const row = document.createElement('div');
     row.className = 'setting';
@@ -681,6 +710,14 @@
         segmented([[true, t('on')], [false, t('off')]], !!settings.mistakeLimit, (v) => update('mistakeLimit', v))
       )
     );
+    if (settings.mistakeLimit) {
+      body.appendChild(
+        settingRow(
+          t('mistakeCount'),
+          stepper(mistakeMax(), MISTAKES_MIN, MISTAKES_MAX, (v) => update('mistakeMax', v))
+        )
+      );
+    }
     body.appendChild(
       settingRow(t('sound'), segmented([[true, t('on')], [false, t('off')]], !!settings.sound, (v) => update('sound', v)))
     );

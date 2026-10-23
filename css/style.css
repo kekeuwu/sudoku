@@ -829,6 +829,38 @@ svg .fill {
   font-weight: 700;
 }
 
+.stepper {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.stepper button {
+  width: 64px;
+  min-height: 46px;
+  border-radius: 9px;
+  background: var(--bg);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.stepper button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.stepper-value {
+  flex: 1;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .spinner {
   width: 40px;
   height: 40px;
